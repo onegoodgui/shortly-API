@@ -21,3 +21,17 @@ export async function generateShortUrl(req, res){
     }
 }
 
+export async function findShortUrl(req, res){
+
+const {shortUrl} = req.params;
+
+const {rows: [foundUrl]} = await connection.query('SELECT * FROM urls WHERE urls."shortURL" = $1',[shortUrl]);
+
+if(!foundUrl){
+    res.status(404).send('item nao encontrado');
+    return
+}
+
+res.status(200).send(foundUrl)
+
+}
