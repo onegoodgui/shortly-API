@@ -35,3 +35,24 @@ if(!foundUrl){
 res.status(200).send(foundUrl)
 
 }
+
+export async function deleteUrl(req, res){
+
+    const {user: {id: userId}} = res.locals;
+    const {id: urlId} = req.params;
+    try{
+
+        const {rows: [{userId: urlUserId}]} = await connection.query('SELECT "userId" FROM urls WHERE urls.id = $1',[urlId]);
+
+        if(userId === urlUserId){
+            await connection.query('DELETE FROM urls WHERE urls.id = $1', [urlId]);
+            return
+        }
+        res.status(401).send('esta url não pertence a este usuário');
+
+    }
+    catch(error){
+        res.status(500).send(error)
+    }
+
+}
