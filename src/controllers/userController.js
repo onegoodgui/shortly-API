@@ -73,20 +73,20 @@ export async function usersRanking(req, res){
   try{
 
     const {rows: [...rankingsArray]} = await connection.query(
-      `SELECT users.id, users.name, COUNT(urls."userId") AS "linksCount", SUM(urls."visitCount") AS "visitCount"
+      `SELECT users.id, users.name, COUNT(urls."userId") AS "linksCount", COALESCE(SUM(urls."visitCount"),0) AS "visitCount"
        FROM users
-       JOIN urls ON urls."userId" = users.id
+       LEFT JOIN urls ON urls."userId" = users.id
        GROUP BY users.id
        ORDER BY "visitCount" DESC`
     )
 
-    const {rows: [...unrankedsArray]} = await connection.query(
-      `SELECT users.id, users.name, '0' AS "linksCount", '0' AS "visitCount" FROM users WHERE users.id NOT IN (SELECT urls."userId" FROM urls);
+    // const {rows: [...unrankedsArray]} = await connection.query(
+    //   `SELECT users.id, users.name, '0' AS "linksCount", '0' AS "visitCount" FROM users WHERE users.id NOT IN (SELECT urls."userId" FROM urls);
     
-    `)
+    // `)
 
     // console.log(rankingsArray)
-    res.send([...rankingsArray, ...unrankedsArray])
+    res.send([...rankingsArray])
   }
   catch(error){
 
